@@ -7,10 +7,16 @@ import datetime
 from time import sleep, localtime, strftime
 from blinkt import set_pixel, show, set_brightness
 
+RED = (255, 0, 0, 0.6)
+GOOD_SERVICE = "Good Service"
+
 line_colors = {
     "Central": {
         "id": 0,
-        "color": (100, 0, 0),
+        "color": {
+            "on": (90, 0, 0),
+            "off": RED
+        },
         "on": True,
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
@@ -19,7 +25,10 @@ line_colors = {
     },
     "Bakerloo": {
         "id": 1,
-        "color": (132, 40, 3),
+        "color": {
+            "on": (132, 40, 3),
+            "off": RED
+        },
         "on": True,
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
@@ -28,7 +37,10 @@ line_colors = {
     },
     "Circle": {
         "id": 2,
-        "color": (120, 120, 0),
+        "color": {
+            "on": (120, 120, 0),
+            "off": RED
+        },
         "on": True,
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
@@ -37,7 +49,10 @@ line_colors = {
     },
     "District": {
         "id": 3,
-        "color": (0, 50, 0),
+        "color": {
+            "on": (0, 50, 0),
+            "off": RED
+        },
         "on": True,
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
@@ -46,7 +61,10 @@ line_colors = {
     },
     "Hammersmith and City": {
         "id": 4,
-        "color": (255, 50, 50),
+        "color": {
+            "on": (255, 50, 50),
+            "off": RED
+        },
         "on": True,
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
@@ -55,7 +73,10 @@ line_colors = {
     },
     "Jubilee": {
         "id": 5,
-        "color": (6, 6, 6),
+        "color": {
+            "on": (6, 6, 6),
+            "off": RED
+        },
         "on": True,
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
@@ -65,7 +86,10 @@ line_colors = {
     },
     "Metropolitan": {
         "id": 6,
-        "color": (30, 0, 10),
+        "color": {
+            "on": (30, 0, 10),
+            "off": RED
+        },
         "on": True,
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
@@ -74,7 +98,10 @@ line_colors = {
     },
     "Northern": {
         "id": 7,
-        "color": (0, 0, 0),
+        "color": {
+            "on": (100, 100, 100),
+            "off": RED,
+        },
         "on": True,
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
@@ -98,7 +125,7 @@ def time_in_range(start, end, x):
 
 def clear(*args):
     for line, line_desc in line_colors.iteritems():
-        set_pixel(line_desc["id"], 0, 0, 0, 0)
+        turn_off(line)
         show()
     sys.exit(0)
 
@@ -109,9 +136,9 @@ def turn_off(line):
 
 def set_status(line, ok):
     if not ok:
-        set_pixel(line_colors[line]["id"], 255, 255, 255)
+        set_pixel(line_colors[line]["id"], *line_colors[line]["color"]["off"])
     else:
-        set_pixel(line_colors[line]["id"], *line_colors[line]["color"])
+        set_pixel(line_colors[line]["id"], *line_colors[line]["color"]["on"])
 
 
 def log(message):
@@ -121,7 +148,6 @@ def log(message):
 
 
 def main(brightness, update_interval, blink_rate=0.1):
-    set_brightness(brightness)
     tfl_status = tubestatus.Status()
     while True:
         now = datetime.datetime.now().time()
@@ -143,9 +169,10 @@ def main(brightness, update_interval, blink_rate=0.1):
                 line_desc["available"] = False
 
         for x in range(0, int(update_interval/blink_rate), 1):
+            set_brightness(brightness)
             for line, line_desc in line_colors.iteritems():
                 if line_desc["available"]:
-                    if line_desc["status"] != "Good Service":
+                    if line_desc["status"] != GOOD_SERVICE:
                         if line_desc["on"]:
                             set_status(line, False)
                             line_desc["on"] = False
