@@ -1,0 +1,7 @@
+Package: blinkt-tube-status
+Version: 1.0.0-1
+Section: base
+Priority: optional
+Architecture: all
+Maintainer: Daniel Harper <me@email.com>
+Description: Runs tube status monitor (requires blinkt hardware)

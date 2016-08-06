@@ -1,0 +1,1 @@
+supervisorctl stop blinkt-tube-status

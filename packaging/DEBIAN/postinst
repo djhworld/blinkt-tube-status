@@ -1,0 +1,2 @@
+chown -R pi:pi /var/log/blinkt-tube-status
+chmod +x /usr/local/bin/blinkt-tube-status
