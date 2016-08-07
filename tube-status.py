@@ -17,7 +17,6 @@ line_colors = {
             "on": (90, 0, 0),
             "off": RED
         },
-        "on": True,
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
             "end": datetime.time(1, 0, 0),
@@ -29,7 +28,6 @@ line_colors = {
             "on": (132, 40, 3),
             "off": RED
         },
-        "on": True,
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
             "end": datetime.time(1, 0, 0),
@@ -41,7 +39,6 @@ line_colors = {
             "on": (120, 120, 0),
             "off": RED
         },
-        "on": True,
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
             "end": datetime.time(1, 0, 0),
@@ -53,7 +50,6 @@ line_colors = {
             "on": (0, 50, 0),
             "off": RED
         },
-        "on": True,
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
             "end": datetime.time(1, 0, 0),
@@ -65,7 +61,6 @@ line_colors = {
             "on": (255, 50, 50),
             "off": RED
         },
-        "on": True,
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
             "end": datetime.time(1, 0, 0),
@@ -77,7 +72,6 @@ line_colors = {
             "on": (6, 6, 6),
             "off": RED
         },
-        "on": True,
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
             "end": datetime.time(1, 0, 0),
@@ -90,7 +84,6 @@ line_colors = {
             "on": (30, 0, 10),
             "off": RED
         },
-        "on": True,
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
             "end": datetime.time(1, 0, 0),
@@ -102,7 +95,6 @@ line_colors = {
             "on": (100, 100, 100),
             "off": RED,
         },
-        "on": True,
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
             "end": datetime.time(1, 0, 0),
@@ -149,6 +141,8 @@ def log(message):
 
 def main(brightness, update_interval, blink_rate=0.1):
     tfl_status = tubestatus.Status()
+    blink_tick = True
+
     while True:
         now = datetime.datetime.now().time()
         log("Updating statuses...")
@@ -173,17 +167,13 @@ def main(brightness, update_interval, blink_rate=0.1):
             for line, line_desc in line_colors.iteritems():
                 if line_desc["available"]:
                     if line_desc["status"] != GOOD_SERVICE:
-                        if line_desc["on"]:
-                            set_status(line, False)
-                            line_desc["on"] = False
-                        else:
-                            set_status(line, True)
-                            line_desc["on"] = True
+                        set_status(line, blink_tick)
                     else:
                         set_status(line, True)
 
             show()
             sleep(blink_rate)
+            blink_tick = not blink_tick
 
 
 if __name__ == '__main__':
