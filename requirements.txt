@@ -1,0 +1,2 @@
+tubestatus==0.2.0
+blinkt==0.0.5
