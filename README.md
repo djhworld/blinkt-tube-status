@@ -1,7 +1,6 @@
 Displays the status of 8 of the tube lines, using the TFL API and the pimoroni Blinkt
 
-<iframe src="https://vine.co/v/5q2vYDOtFiE/embed/simple" width="600" height="600" frameborder="0"></iframe><script src="https://platform.vine.co/static/scripts/embed.js"></script>
-
+https://vine.co/v/5q2vYDOtFiE
 
 ## Pre-requisites
 
