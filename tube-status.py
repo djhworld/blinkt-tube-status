@@ -8,14 +8,19 @@ from time import sleep, localtime, strftime
 from blinkt import set_pixel, show, set_brightness
 
 RED = (255, 0, 0, 0.6)
+YELLOW = (255, 255, 0, 0.6)
 GOOD_SERVICE = "Good Service"
 
-line_colors = {
+# the config for the application, stores the colours
+# used for each line and when those lines operate
+# (night tube is coming soon!)
+CONFIG = {
     "Central": {
-        "id": 0,
-        "color": {
-            "on": (90, 0, 0),
-            "off": RED
+        "led_no": 0,
+        "colour": {
+            "Good Service": (90, 0, 0),
+            "Severe Delays": RED,
+            "Minor Delays": YELLOW
         },
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
@@ -23,10 +28,11 @@ line_colors = {
         }
     },
     "Bakerloo": {
-        "id": 1,
-        "color": {
-            "on": (132, 40, 3),
-            "off": RED
+        "led_no": 1,
+        "colour": {
+            "Good Service": (132, 40, 3),
+            "Severe Delays": RED,
+            "Minor Delays": YELLOW
         },
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
@@ -34,10 +40,11 @@ line_colors = {
         }
     },
     "Circle": {
-        "id": 2,
-        "color": {
-            "on": (120, 120, 0),
-            "off": RED
+        "led_no": 2,
+        "colour": {
+            "Good Service": (120, 120, 0),
+            "Severe Delays": RED,
+            "Minor Delays": YELLOW
         },
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
@@ -45,10 +52,11 @@ line_colors = {
         }
     },
     "District": {
-        "id": 3,
-        "color": {
-            "on": (0, 50, 0),
-            "off": RED
+        "led_no": 3,
+        "colour": {
+            "Good Service": (0, 50, 0),
+            "Severe Delays": RED,
+            "Minor Delays": YELLOW
         },
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
@@ -56,10 +64,11 @@ line_colors = {
         }
     },
     "Hammersmith and City": {
-        "id": 4,
-        "color": {
-            "on": (255, 50, 50),
-            "off": RED
+        "led_no": 4,
+        "colour": {
+            "Good Service": (255, 50, 50),
+            "Severe Delays": RED,
+            "Minor Delays": YELLOW
         },
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
@@ -67,10 +76,11 @@ line_colors = {
         }
     },
     "Jubilee": {
-        "id": 5,
-        "color": {
-            "on": (6, 6, 6),
-            "off": RED
+        "led_no": 5,
+        "colour": {
+            "Good Service": (6, 6, 6),
+            "Severe Delays": RED,
+            "Minor Delays": YELLOW
         },
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
@@ -79,10 +89,11 @@ line_colors = {
 
     },
     "Metropolitan": {
-        "id": 6,
-        "color": {
-            "on": (30, 0, 10),
-            "off": RED
+        "led_no": 6,
+        "colour": {
+            "Good Service": (30, 0, 10),
+            "Severe Delays": RED,
+            "Minor Delays": YELLOW
         },
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
@@ -90,10 +101,11 @@ line_colors = {
         }
     },
     "Northern": {
-        "id": 7,
-        "color": {
-            "on": (100, 100, 100),
-            "off": RED,
+        "led_no": 7,
+        "colour": {
+            "Good Service": (100, 100, 100),
+            "Severe Delays": RED,
+            "Minor Delays": YELLOW
         },
         "operating_hours": {
             "start": datetime.time(5, 0, 0),
@@ -115,22 +127,30 @@ def time_in_range(start, end, x):
     return start <= x <= end
 
 
+def turn_led_off_for(line):
+    set_pixel(CONFIG[line]["led_no"], 0, 0, 0)
+
+
 def clear(*args):
-    for line, line_desc in line_colors.iteritems():
-        turn_off(line)
-        show()
+    for line, line_desc in CONFIG.iteritems():
+        turn_led_off_for(line)
+    show()
     sys.exit(0)
 
 
-def turn_off(line):
-    set_pixel(line_colors[line]["id"], 0, 0, 0)
-
-
-def set_status(line, ok):
-    if not ok:
-        set_pixel(line_colors[line]["id"], *line_colors[line]["color"]["off"])
+def set_led_status(line, line_ok):
+    colours = line["colour"]
+    led_no = line["led_no"]
+    if line_ok:
+        set_pixel(led_no, *colours[GOOD_SERVICE])
     else:
-        set_pixel(line_colors[line]["id"], *line_colors[line]["color"]["on"])
+        # colour should be set to the colour of the status (if available)
+        # otherwise change to RED
+        status = line["status"]
+        if status in colours:
+            set_pixel(led_no, *colours[status])
+        else:
+            set_pixel(led_no, *RED)
 
 
 def log(message):
@@ -139,41 +159,52 @@ def log(message):
     sys.stdout.flush()
 
 
+def line_is_open(line, current_time):
+    return time_in_range(line["operating_hours"]["start"],
+                         line["operating_hours"]["end"],
+                         current_time)
+
+
+# Update the status of each line
+def update_line_statuses(tfl_status_obj):
+    now = datetime.datetime.now().time()
+    log("Updating statuses...")
+    for line, line_desc in CONFIG.iteritems():
+        if line_is_open(line_desc, now):
+            line_desc["open"] = True
+            try:
+                line_desc["status"] = tfl_status_obj.get_status(line).description
+                log(line + " line status = " + line_desc["status"])
+            except:
+                line_desc["status"] = "error"
+                log(line + " [error] line status = " + line_desc["status"])
+                sys.stdout.flush()
+        else:
+            log(line + " line is CLOSED")
+            line_desc["open"] = False
+            turn_led_off_for(line)
+
+
 def main(brightness, update_interval, blink_rate=0.1):
-    tfl_status = tubestatus.Status()
-    blink_tick = True
+    tfl_status_obj = tubestatus.Status()
+    should_blink = True
 
     while True:
-        now = datetime.datetime.now().time()
-        log("Updating statuses...")
-        for line, line_desc in line_colors.iteritems():
-            if time_in_range(line_desc["operating_hours"]["start"],
-                             line_desc["operating_hours"]["end"],
-                             now):
-                try:
-                    line_desc["status"] = tfl_status.get_status(line).description
-                    line_desc["available"] = True
-                except:
-                    line_desc["status"] = "error"
-                log(line + " line status = " + line_desc["status"])
-                sys.stdout.flush()
-            else:
-                log(line + " line is CLOSED")
-                turn_off(line)
-                line_desc["available"] = False
+        update_line_statuses(tfl_status_obj)
 
+        # update LEDS
         for x in range(0, int(update_interval/blink_rate), 1):
             set_brightness(brightness)
-            for line, line_desc in line_colors.iteritems():
-                if line_desc["available"]:
+            for line, line_desc in CONFIG.iteritems():
+                if line_desc["open"]:
                     if line_desc["status"] != GOOD_SERVICE:
-                        set_status(line, blink_tick)
+                        set_led_status(line_desc, should_blink)
                     else:
-                        set_status(line, True)
+                        set_led_status(line_desc, True)
 
             show()
             sleep(blink_rate)
-            blink_tick = not blink_tick
+            should_blink = not should_blink
 
 
 if __name__ == '__main__':
