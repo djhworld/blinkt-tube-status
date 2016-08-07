@@ -209,4 +209,5 @@ def main(brightness, update_interval, blink_rate=0.1):
 
 if __name__ == '__main__':
     signal.signal(signal.SIGTERM, clear)
+    signal.signal(signal.SIGINT, clear)
     main(0.2, 120, 0.7)
