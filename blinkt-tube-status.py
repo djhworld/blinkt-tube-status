@@ -7,28 +7,16 @@ import datetime
 from time import sleep, localtime, strftime
 from blinkt import set_pixel, show, set_brightness
 
-RED = (255, 0, 0, 0.6)
-YELLOW = (255, 255, 0, 0.6)
+RED = (255, 0, 0, 0.3)
+YELLOW = (255, 255, 0, 0.3)
 GOOD_SERVICE = "Good Service"
 
 # the config for the application, stores the colours
 # used for each line and when those lines operate
 # (night tube is coming soon!)
 CONFIG = {
-    "Central": {
-        "led_no": 0,
-        "colour": {
-            "Good Service": (90, 0, 0),
-            "Severe Delays": RED,
-            "Minor Delays": YELLOW
-        },
-        "operating_hours": {
-            "start": datetime.time(5, 0, 0),
-            "end": datetime.time(1, 0, 0),
-        }
-    },
     "Bakerloo": {
-        "led_no": 1,
+        "led_no": 7,
         "colour": {
             "Good Service": (132, 40, 3),
             "Severe Delays": RED,
@@ -39,8 +27,20 @@ CONFIG = {
             "end": datetime.time(1, 0, 0),
         }
     },
+    "Central": {
+        "led_no": 6,
+        "colour": {
+            "Good Service": (90, 0, 0),
+            "Severe Delays": RED,
+            "Minor Delays": YELLOW
+        },
+        "operating_hours": {
+            "start": datetime.time(5, 0, 0),
+            "end": datetime.time(1, 0, 0),
+        }
+    },
     "Circle": {
-        "led_no": 2,
+        "led_no": 5,
         "colour": {
             "Good Service": (120, 120, 0),
             "Severe Delays": RED,
@@ -52,7 +52,7 @@ CONFIG = {
         }
     },
     "District": {
-        "led_no": 3,
+        "led_no": 4,
         "colour": {
             "Good Service": (0, 50, 0),
             "Severe Delays": RED,
@@ -64,7 +64,7 @@ CONFIG = {
         }
     },
     "Hammersmith and City": {
-        "led_no": 4,
+        "led_no": 3,
         "colour": {
             "Good Service": (255, 50, 50),
             "Severe Delays": RED,
@@ -76,7 +76,7 @@ CONFIG = {
         }
     },
     "Jubilee": {
-        "led_no": 5,
+        "led_no": 2,
         "colour": {
             "Good Service": (6, 6, 6),
             "Severe Delays": RED,
@@ -89,7 +89,7 @@ CONFIG = {
 
     },
     "Metropolitan": {
-        "led_no": 6,
+        "led_no": 1,
         "colour": {
             "Good Service": (30, 0, 10),
             "Severe Delays": RED,
@@ -101,7 +101,7 @@ CONFIG = {
         }
     },
     "Northern": {
-        "led_no": 7,
+        "led_no": 0,
         "colour": {
             "Good Service": (100, 100, 100),
             "Severe Delays": RED,
@@ -210,4 +210,4 @@ def main(brightness, update_interval, blink_rate=0.1):
 if __name__ == '__main__':
     signal.signal(signal.SIGTERM, clear)
     signal.signal(signal.SIGINT, clear)
-    main(0.2, 120, 0.7)
+    main(0.1, 120, 0.7)
