@@ -7,8 +7,8 @@ import datetime
 from time import sleep, localtime, strftime
 from blinkt import set_pixel, show, set_brightness
 
-RED = (255, 0, 0, 0.3)
-YELLOW = (255, 255, 0, 0.3)
+RED = (255, 0, 0, 0.4)
+YELLOW = (255, 255, 0, 0.4)
 GOOD_SERVICE = "Good Service"
 
 # the config for the application, stores the colours
@@ -210,4 +210,4 @@ def main(brightness, update_interval, blink_rate=0.1):
 if __name__ == '__main__':
     signal.signal(signal.SIGTERM, clear)
     signal.signal(signal.SIGINT, clear)
-    main(0.1, 120, 0.7)
+    main(0.4, 120, 0.7)
